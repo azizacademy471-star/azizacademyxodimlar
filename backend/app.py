@@ -12,7 +12,7 @@ from typing import Any
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request, send_file, make_response
+from flask import Flask, jsonify, render_template, request, send_file
 from flask_cors import CORS
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
@@ -31,10 +31,46 @@ TELEGRAM_OFFSET_PATH = DATA_DIR / 'telegram_offset.txt'
 BOT_TOKEN = os.getenv('BOT_TOKEN', '').strip()
 ADMIN_CHAT_IDS = [item.strip() for item in os.getenv('ADMIN_CHAT_IDS', '').split(',') if item.strip()]
 SEND_EXCEL_TO_ADMIN_EACH_SUBMISSION = os.getenv('SEND_EXCEL_TO_ADMIN_EACH_SUBMISSION', 'false').strip().lower() == 'true'
-TIMEZONE_OFFSET_HOURS = int(os.getenv('TIMEZONE_OFFSET_HOURS', '5'))
+
+
+def parse_int_env(name: str, default: int) -> int:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def parse_float_env(name: str, default: float) -> float:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def normalize_origin(value: str) -> str:
+    return str(value or '').strip().rstrip('/')
+
+
+def split_origins(value: str) -> list[str]:
+    return [normalize_origin(item) for item in value.split(',') if normalize_origin(item)]
+
+
+TIMEZONE_OFFSET_HOURS = parse_int_env('TIMEZONE_OFFSET_HOURS', 5)
 BOT_POLLING_ENABLED = os.getenv('BOT_POLLING_ENABLED', 'true').strip().lower() == 'true'
-BOT_POLL_INTERVAL = float(os.getenv('BOT_POLL_INTERVAL', '2'))
-FRONTEND_URL = os.getenv('FRONTEND_URL', '').strip()
+BOT_POLL_INTERVAL = parse_float_env('BOT_POLL_INTERVAL', 2.0)
+
+# Netlify va Railway domenlari. FRONTEND_URL bitta yoki vergul bilan ajratilgan bir nechta URL bo'lishi mumkin.
+FRONTEND_URL = normalize_origin(os.getenv('FRONTEND_URL', ''))
+ALLOWED_ORIGINS = set(split_origins(os.getenv('FRONTEND_URL', '')))
+ALLOWED_ORIGINS.update({
+    'https://azizacademyxodimlar.netlify.app',
+    'https://azizacademyxodimlar-production-e6fa.up.railway.app',
+    'https://azizacademyxodimlar-production-5573.up.railway.app',
+})
+ALLOWED_ORIGINS = {origin for origin in ALLOWED_ORIGINS if origin}
+ALLOW_ALL_CORS = os.getenv('ALLOW_ALL_CORS', 'false').strip().lower() == 'true'
 
 _bot_polling_lock = threading.Lock()
 _bot_polling_started = False
@@ -63,38 +99,32 @@ FIELD_NAMES = [
 app = Flask(__name__)
 
 # CORS
-if FRONTEND_URL:
-    CORS(
-        app,
-        resources={r"/api/*": {"origins": [FRONTEND_URL]}},
-        allow_headers=["Content-Type", "Authorization"],
-        methods=["GET", "POST", "OPTIONS"],
-    )
-else:
-    CORS(
-        app,
-        resources={r"/api/*": {"origins": "*"}},
-        allow_headers=["Content-Type", "Authorization"],
-        methods=["GET", "POST", "OPTIONS"],
-    )
+# Netlify frontenddan Railway backendga so'rov yuborilganda brauzer CORS tekshiradi.
+# Shu sababli Netlify origini doim ruxsat etilganlar ro'yxatida turadi.
+CORS(
+    app,
+    resources={r"/api/*": {"origins": "*" if ALLOW_ALL_CORS else list(ALLOWED_ORIGINS)}},
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "OPTIONS"],
+    supports_credentials=False,
+)
 
 
 @app.after_request
 def add_cors_headers(response):
-    origin = request.headers.get('Origin', '').strip()
+    origin = normalize_origin(request.headers.get('Origin', ''))
 
-    if FRONTEND_URL:
-        if origin == FRONTEND_URL:
-            response.headers['Access-Control-Allow-Origin'] = origin
-    else:
-        if origin:
-            response.headers['Access-Control-Allow-Origin'] = origin
-        else:
-            response.headers['Access-Control-Allow-Origin'] = '*'
+    if ALLOW_ALL_CORS:
+        response.headers['Access-Control-Allow-Origin'] = origin or '*'
+    elif origin in ALLOWED_ORIGINS:
+        response.headers['Access-Control-Allow-Origin'] = origin
+    elif not origin:
+        response.headers['Access-Control-Allow-Origin'] = '*'
 
     response.headers['Vary'] = 'Origin'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Max-Age'] = '86400'
     return response
 
 
