@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+data/submissions.db
+data/submissions.json
+data/xodimlar.xlsx
+data/telegram_offset.txt

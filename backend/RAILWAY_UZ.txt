@@ -1,0 +1,16 @@
+RAILWAY UCHUN QISQA YO'RIQNOMA
+
+1) Railwayda yangi service oching.
+2) Root Directory sifatida backend ni tanlang.
+3) Volume ulang va mount path ni /data qiling.
+4) Variables ga .env.example dagi qiymatlarni kiriting.
+5) FRONTEND_URL ga Netlify domeningizni yozing.
+6) Start Command kerak bo'lsa: gunicorn wsgi:app --workers 1 --threads 4 --timeout 120
+
+Backend ishlari:
+- API: /api/submit
+- Admin: /admin
+- Excel yuklash: /api/download/excel
+- Telegram bot polling ham shu backendda ishlaydi.
+
+Railway Variables ichida DATA_DIR=/data qilib yozing. Lokal ishga tushirishda esa DATA_DIR=data bo'lishi mumkin.

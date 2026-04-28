@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin panel • Excel ko'rish</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="page-bg"></div>
+  <main class="app-shell">
+    <section class="hero-card">
+      <img src="{{ url_for('static', filename='assets/header.png') }}" alt="AL-AZIZ ACADEMY" class="hero-banner" />
+      <div class="hero-content">
+        <span class="hero-badge">Admin panel</span>
+        <h1>Excel formatni ko'rish</h1>
+        <p>Bu yerda barcha yuborilgan ma'lumotlar jadval ko'rinishida turadi va Excel faylni ham yuklab olish mumkin.</p>
+      </div>
+    </section>
+
+    <section class="form-card">
+      <div class="admin-toolbar">
+        <a href="{{ url_for('index') }}" class="back-link">← Asosiy sahifa</a>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="{{ url_for('admin_panel') }}" class="admin-btn">Excel formatni ko'rish</a>
+          <a href="{{ url_for('download_excel') }}" class="download-btn">Excel yuklab olish</a>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><small>Jami anketa</small><strong>{{ stats.total }}</strong></div>
+        <div class="stat-card"><small>Ustozlar</small><strong>{{ stats.teachers }}</strong></div>
+        <div class="stat-card"><small>Erkaklar</small><strong>{{ stats.male }}</strong></div>
+        <div class="stat-card"><small>Ayollar</small><strong>{{ stats.female }}</strong></div>
+      </div>
+
+      {% if rows %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vaqt</th>
+              <th>F.I.SH</th>
+              <th>Telefon</th>
+              <th>Filial</th>
+              <th>Lavozim</th>
+              <th>Fan</th>
+              <th>Jinsi</th>
+              <th>Tug'ilgan sana</th>
+              <th>Ish boshlangan</th>
+              <th>Ota</th>
+              <th>Ona</th>
+              <th>Turmush o'rtog'i</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ row.sent_at }}</td>
+              <td>{{ row.full_name }}</td>
+              <td>{{ row.phone }}</td>
+              <td>{{ row.branch }}</td>
+              <td>{{ row.position }}</td>
+              <td>{{ row.teacher_subject }}</td>
+              <td>{{ row.gender }}</td>
+              <td>{{ row.birth_date }}</td>
+              <td>{{ row.work_start_year }} / {{ row.work_start_month }}</td>
+              <td>{{ row.father_name }}{% if row.father_phone %}<br>{{ row.father_phone }}{% endif %}</td>
+              <td>{{ row.mother_name }}{% if row.mother_phone %}<br>{{ row.mother_phone }}{% endif %}</td>
+              <td>{{ row.spouse_name }}{% if row.spouse_phone %}<br>{{ row.spouse_phone }}{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">Hozircha saqlangan ma'lumot yo'q.</div>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

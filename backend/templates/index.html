@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AL-AZIZ ACADEMY • Xodimlar Anketasi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="page-bg"></div>
+
+  <main class="app-shell">
+    <section class="hero-card">
+      <img src="{{ url_for('static', filename='assets/header.png') }}" alt="AL-AZIZ ACADEMY" class="hero-banner" />
+      <div class="hero-content">
+        <span class="hero-badge">Xodimlar anketasi</span>
+        <h1>Ma'lumotlaringizni to'ldiring</h1>
+        <p>
+          Quyidagi formani diqqat bilan to'ldiring. Barcha ma'lumotlar Excel faylga saqlanadi.
+        </p>
+        <div class="hero-actions">
+          
+        </div>
+      </div>
+    </section>
+
+    <section class="form-card">
+      <div class="section-header">
+        <div>
+          <h2>Asosiy ma'lumotlar</h2>
+          <p>Majburiy maydonlarni to'ldiring.</p>
+        </div>
+        <div class="progress-pill">
+          <span id="filledCount">0</span>
+          <small>to'ldirilgan maydon</small>
+        </div>
+      </div>
+
+      <form id="employeeForm" novalidate>
+        <div class="form-grid">
+          <div class="field full">
+            <label for="fullName">Familya ism sharifingizni kiriting</label>
+            <input id="fullName" name="full_name" type="text" placeholder="Masalan: Karimov Ulug'bek Aziz o'g'li" required />
+          </div>
+
+          <div class="field">
+            <label for="phone">Nomer kiriting</label>
+            <input id="phone" name="phone" type="tel" placeholder="+998 90 123 45 67" inputmode="tel" required />
+          </div>
+
+          <div class="field">
+            <label for="branch">Filial tanlang</label>
+            <select id="branch" name="branch" required>
+              <option value="">Filialni tanlang</option>
+              <option>Niyozbosh</option>
+              <option>Xalqabod</option>
+              <option>Gulbahor</option>
+              <option>Kasblar</option>
+              <option>Kids 1</option>
+              <option>Kids 2</option>
+              <option>Do’stobod</option>
+              <option>Olmazor</option>
+              <option>Chinoz</option>
+              <option>Krasin</option>
+              <option>Pitiletka</option>
+              <option>Qo’rg’oncha</option>
+              <option>Kids 3</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="position">Lavozim</label>
+            <select id="position" name="position" required>
+              <option value="">Lavozimni tanlang</option>
+              <option>Filial raxbari</option>
+              <option>Soxa raxbari</option>
+              <option>Ustoz</option>
+              <option>Manager</option>
+              <option>Operator</option>
+              <option>Testolog</option>
+              <option>Kamera nazoratchisi</option>
+              <option>Tozalik hodimi</option>
+            </select>
+          </div>
+
+          <div class="field hidden" id="teacherSubjectField">
+            <label for="teacherSubject">Nima fandan ustozsiz?</label>
+            <select id="teacherSubject" name="teacher_subject">
+              <option value="">Fanni tanlang</option>
+              <option>Ingliz tili ustozi</option>
+              <option>Rus tili ustozi</option>
+              <option>Matematika ustozi</option>
+              <option>Mental arifmetika ustozi</option>
+              <option>Koreys tili ustozi</option>
+              <option>Arab tili ustozi</option>
+              <option>Ona tili va adabiyot ustozi</option>
+              <option>Tarix ustozi</option>
+              <option>Fizika ustozi</option>
+              <option>Kimyo ustozi</option>
+              <option>Biologiya ustozi</option>
+              <option>IT ustozi</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Jinsi</label>
+            <div class="toggle-group" data-toggle-group="gender">
+              <button type="button" class="toggle-btn" data-value="Erkak">Erkak</button>
+              <button type="button" class="toggle-btn" data-value="Ayol">Ayol</button>
+            </div>
+            <input type="hidden" id="gender" name="gender" required />
+          </div>
+
+          <div class="field">
+            <label for="birthDate">Tug'ilgan sana</label>
+            <input id="birthDate" name="birth_date" type="date" required />
+          </div>
+
+          <div class="field">
+            <label for="workYear">Qachondan beri ishlaysiz?</label>
+            <div class="inline-grid">
+              <select id="workYear" name="work_start_year" required>
+                <option value="">Yil</option>
+              </select>
+              <select id="workMonth" name="work_start_month" required>
+                <option value="">Oy</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider"><span>Ota ma'lumotlari</span></div>
+        <div class="form-grid relation-block" data-block="father">
+          <div class="field full">
+            <div class="label-row">
+              <label for="fatherName">Otangizni familya ism sharifini kiriting</label>
+              <button type="button" class="mini-toggle" data-state-target="father_deceased">Vafot etgan</button>
+            </div>
+            <input id="fatherName" name="father_name" type="text" placeholder="Otangizning F.I.SH" />
+            <input type="hidden" name="father_deceased" value="false" />
+          </div>
+          <div class="conditional-grid" data-conditional="father_deceased" data-hide-when="true">
+            <div class="field">
+              <label for="fatherPhone">Otangiz nomerini kiriting</label>
+              <input id="fatherPhone" name="father_phone" type="tel" placeholder="+998 ..." inputmode="tel" />
+            </div>
+            <div class="field">
+              <label for="fatherBirthDate">Otangiz tug'ilgan sana</label>
+              <input id="fatherBirthDate" name="father_birth_date" type="date" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider"><span>Ona ma'lumotlari</span></div>
+        <div class="form-grid relation-block" data-block="mother">
+          <div class="field full">
+            <div class="label-row">
+              <label for="motherName">Onangiz familya ism sharifini kiriting</label>
+              <button type="button" class="mini-toggle" data-state-target="mother_deceased">Vafot etgan</button>
+            </div>
+            <input id="motherName" name="mother_name" type="text" placeholder="Onangizning F.I.SH" />
+            <input type="hidden" name="mother_deceased" value="false" />
+          </div>
+          <div class="conditional-grid" data-conditional="mother_deceased" data-hide-when="true">
+            <div class="field">
+              <label for="motherBirthDate">Onangiz tug'ilgan sana</label>
+              <input id="motherBirthDate" name="mother_birth_date" type="date" />
+            </div>
+            <div class="field">
+              <label for="motherPhone">Onangiz nomerini kiriting</label>
+              <input id="motherPhone" name="mother_phone" type="tel" placeholder="+998 ..." inputmode="tel" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider"><span>Turmush o'rtog'i ma'lumotlari</span></div>
+        <div class="form-grid relation-block" data-block="spouse">
+          <div class="field full">
+            <div class="label-row wrap">
+              <label for="spouseName">Turmush o'rtog'ingiz familya ism sharifini kiriting</label>
+              <div class="mini-toggle-group">
+                <button type="button" class="mini-toggle" data-state-target="spouse_deceased">Vafot etgan</button>
+                <button type="button" class="mini-toggle" data-state-target="spouse_unmarried">Turmush qurmaganman</button>
+                <button type="button" class="mini-toggle" data-state-target="spouse_divorced">Ajrashganman</button>
+              </div>
+            </div>
+            <input id="spouseName" name="spouse_name" type="text" placeholder="Turmush o'rtog'ingizning F.I.SH" />
+            <input type="hidden" name="spouse_deceased" value="false" />
+            <input type="hidden" name="spouse_unmarried" value="false" />
+            <input type="hidden" name="spouse_divorced" value="false" />
+          </div>
+          <div class="conditional-grid" data-conditional-combo="spouse_deceased:false,spouse_unmarried:false,spouse_divorced:false">
+            <div class="field">
+              <label for="spouseBirthDate">Turmush o'rtog'i tug'ilgan sana</label>
+              <input id="spouseBirthDate" name="spouse_birth_date" type="date" />
+            </div>
+            <div class="field">
+              <label for="spousePhone">Turmush o'rtog'i nomerini kiriting</label>
+              <input id="spousePhone" name="spouse_phone" type="tel" placeholder="+998 ..." inputmode="tel" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider children-divider" data-conditional="spouse_unmarried" data-hide-when="true"><span>Farzandlar</span></div>
+        <div class="children-wrapper" data-conditional="spouse_unmarried" data-hide-when="true">
+          <div class="child-card" data-child-index="1">
+            <div class="label-row wrap">
+              <h3>1-farzand</h3>
+              <button type="button" class="mini-toggle" data-state-target="child1_none">yo'q</button>
+            </div>
+            <input type="hidden" name="child1_none" value="false" />
+            <div class="conditional-grid child-grid" data-conditional="child1_none" data-hide-when="true">
+              <div class="field">
+                <label for="child1Name">1-farzand Familya ism sharifini kiriting</label>
+                <input id="child1Name" name="child1_name" type="text" placeholder="F.I.SH" />
+              </div>
+              <div class="field">
+                <label for="child1BirthDate">1-farzand tug'ilgan sana</label>
+                <input id="child1BirthDate" name="child1_birth_date" type="date" />
+              </div>
+            </div>
+          </div>
+
+          <div class="child-card" data-child-index="2" data-conditional="child1_none" data-hide-when="true">
+            <div class="label-row wrap">
+              <h3>2-farzand</h3>
+              <button type="button" class="mini-toggle" data-state-target="child2_none">yo'q</button>
+            </div>
+            <input type="hidden" name="child2_none" value="false" />
+            <div class="conditional-grid child-grid" data-conditional="child2_none" data-hide-when="true">
+              <div class="field">
+                <label for="child2Name">2-farzand Familya ism sharifini kiriting</label>
+                <input id="child2Name" name="child2_name" type="text" placeholder="F.I.SH" />
+              </div>
+              <div class="field">
+                <label for="child2BirthDate">2-farzand tug'ilgan sana</label>
+                <input id="child2BirthDate" name="child2_birth_date" type="date" />
+              </div>
+            </div>
+          </div>
+
+          <div class="child-card" data-child-index="3" data-conditional-any="child1_none:true,child2_none:true">
+            <div class="label-row wrap">
+              <h3>3-farzand</h3>
+              <button type="button" class="mini-toggle" data-state-target="child3_none">yo'q</button>
+            </div>
+            <input type="hidden" name="child3_none" value="false" />
+            <div class="conditional-grid child-grid" data-conditional="child3_none" data-hide-when="true">
+              <div class="field">
+                <label for="child3Name">3-farzand Familya ism sharifini kiriting</label>
+                <input id="child3Name" name="child3_name" type="text" placeholder="F.I.SH" />
+              </div>
+              <div class="field">
+                <label for="child3BirthDate">3-farzand tug'ilgan sana</label>
+                <input id="child3BirthDate" name="child3_birth_date" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider" data-conditional-any="spouse_unmarried:true,spouse_divorced:true"><span>Qaynota va qaynona</span></div>
+        <div class="form-grid relation-block" data-block="fatherinlaw" data-conditional-any="spouse_unmarried:true,spouse_divorced:true">
+          <div class="field full">
+            <div class="label-row">
+              <label for="fatherInLawName">Qaynotangiz Familya ism sharifini kiriting</label>
+              <button type="button" class="mini-toggle" data-state-target="father_in_law_deceased">Vafot etgan</button>
+            </div>
+            <input id="fatherInLawName" name="father_in_law_name" type="text" placeholder="Qaynotangizning F.I.SH" />
+            <input type="hidden" name="father_in_law_deceased" value="false" />
+          </div>
+          <div class="conditional-grid" data-conditional="father_in_law_deceased" data-hide-when="true">
+            <div class="field full">
+              <label for="fatherInLawBirthDate">Tug'ilgan yil oy kun</label>
+              <input id="fatherInLawBirthDate" name="father_in_law_birth_date" type="date" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid relation-block" data-block="motherinlaw" data-conditional-any="spouse_unmarried:true,spouse_divorced:true">
+          <div class="field full">
+            <div class="label-row">
+              <label for="motherInLawName">Qaynonangiz Familya ism sharifini kiriting</label>
+              <button type="button" class="mini-toggle" data-state-target="mother_in_law_deceased">Vafot etgan</button>
+            </div>
+            <input id="motherInLawName" name="mother_in_law_name" type="text" placeholder="Qaynonangizning F.I.SH" />
+            <input type="hidden" name="mother_in_law_deceased" value="false" />
+          </div>
+          <div class="conditional-grid" data-conditional="mother_in_law_deceased" data-hide-when="true">
+            <div class="field full">
+              <label for="motherInLawBirthDate">Tug'ilgan yil oy kun</label>
+              <input id="motherInLawBirthDate" name="mother_in_law_birth_date" type="date" />
+            </div>
+          </div>
+        </div>
+
+        <div class="submit-bar">
+          <div>
+            <strong>Yuborishga tayyormisiz?</strong>
+          </div>
+          <button class="submit-btn" type="submit" id="submitBtn">Yuborish</button>
+        </div>
+
+        <div id="formAlert" class="form-alert hidden"></div>
+      </form>
+    </section>
+  </main>
+
+  <script>window.APP_CONFIG = { apiBaseUrl: "" };</script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
