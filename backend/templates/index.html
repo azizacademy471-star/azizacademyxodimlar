@@ -309,7 +309,12 @@
     </section>
   </main>
 
-  <script>window.APP_CONFIG = { apiBaseUrl: "" };</script>
+<script>
+  window.APP_CONFIG = {
+    apiBaseUrl: "",
+    adminUrl: "/admin"
+  };
+</script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
