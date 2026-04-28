@@ -12,7 +12,7 @@ from typing import Any
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request, send_file
+from flask import Flask, jsonify, render_template, request, send_file, make_response
 from flask_cors import CORS
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
@@ -98,33 +98,40 @@ FIELD_NAMES = [
 
 app = Flask(__name__)
 
-# CORS
-# Netlify frontenddan Railway backendga so'rov yuborilganda brauzer CORS tekshiradi.
-# Shu sababli Netlify origini doim ruxsat etilganlar ro'yxatida turadi.
+# CORS — Netlify/Railway uchun majburiy ruxsat.
+# Bu forma public bo'lgani uchun Origin kelgan bo'lsa aynan o'sha Origin qaytariladi.
+# Shunda brauzer preflight OPTIONS so'rovini bloklamaydi.
 CORS(
     app,
-    resources={r"/api/*": {"origins": "*" if ALLOW_ALL_CORS else list(ALLOWED_ORIGINS)}},
-    allow_headers=["Content-Type", "Authorization"],
+    resources={r"/*": {"origins": "*"}},
+    allow_headers=["Content-Type", "Authorization", "Accept"],
     methods=["GET", "POST", "OPTIONS"],
     supports_credentials=False,
 )
 
 
+@app.before_request
+def handle_preflight_requests():
+    if request.method == 'OPTIONS':
+        response = make_response('', 204)
+        origin = request.headers.get('Origin', '').strip()
+        response.headers['Access-Control-Allow-Origin'] = origin or '*'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Max-Age'] = '86400'
+        response.headers['Vary'] = 'Origin'
+        return response
+    return None
+
+
 @app.after_request
 def add_cors_headers(response):
-    origin = normalize_origin(request.headers.get('Origin', ''))
-
-    if ALLOW_ALL_CORS:
-        response.headers['Access-Control-Allow-Origin'] = origin or '*'
-    elif origin in ALLOWED_ORIGINS:
-        response.headers['Access-Control-Allow-Origin'] = origin
-    elif not origin:
-        response.headers['Access-Control-Allow-Origin'] = '*'
-
-    response.headers['Vary'] = 'Origin'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    origin = request.headers.get('Origin', '').strip()
+    response.headers['Access-Control-Allow-Origin'] = origin or '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     response.headers['Access-Control-Max-Age'] = '86400'
+    response.headers['Vary'] = 'Origin'
     return response
 
 
@@ -522,6 +529,18 @@ def health():
     if request.method == 'OPTIONS':
         return ('', 204)
     return jsonify({'success': True, 'message': 'OK'})
+
+
+@app.route('/api/debug-cors', methods=['GET', 'OPTIONS'])
+def debug_cors():
+    if request.method == 'OPTIONS':
+        return ('', 204)
+    return jsonify({
+        'success': True,
+        'origin': request.headers.get('Origin', ''),
+        'frontend_url': FRONTEND_URL,
+        'allow_all_cors': True,
+    })
 
 
 @app.route('/api/submit', methods=['POST', 'OPTIONS'])
